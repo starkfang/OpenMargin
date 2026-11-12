@@ -17,6 +17,16 @@ const root = path.resolve(__dirname, '../..');
     app = await electron.launch({ executablePath: packaged || require('electron'), args: [...(packaged ? [] : [root]), first, `--user-data-dir=${path.join(dir, 'profile')}`] });
     const win = await app.firstWindow();
     await win.getByRole('tab', { name: /first\.md/ }).waitFor();
+    const platform=await app.evaluate(()=>process.platform);
+    assert.equal(await win.locator('.topbar').getAttribute('data-platform'),platform,'header reflects the actual host platform');
+    const bodyFont=await win.frameLocator('iframe[title="文档预览"]').locator('body').evaluate(body=>getComputedStyle(body).fontFamily);
+    assert.match(bodyFont,/Microsoft YaHei/i,'Markdown supplies a Chinese font fallback on Windows');
+    if(platform==='win32'){
+      assert.equal(await win.locator('.topbar').evaluate(el=>getComputedStyle(el).paddingLeft),'8px','real Windows renderer does not reserve macOS window controls');
+      assert.equal(await win.getByRole('button',{name:'保存',exact:true}).getAttribute('title'),'保存（Ctrl+S）');
+      assert.equal(await win.getByRole('button',{name:'另存为',exact:true}).getAttribute('title'),'另存为（Ctrl+Shift+S）');
+    }
+
     assert.equal(app.windows().length, 1, 'test must use only one window');
     await app.evaluate(({dialog}, file) => { dialog.showOpenDialog = async () => ({canceled:false, filePaths:[file]}); }, second);
     await win.getByRole('button', {name:/打开文件/}).first().click();
@@ -98,7 +108,7 @@ const root = path.resolve(__dirname, '../..');
     assert.ok(compact.overflow,'many tabs overflow the scroll region');assert.ok(compact.plusRight<=compact.topRight-50,'plus remains accessible with drag space to its right');assert.equal(compact.plusDrag,'no-drag');assert.equal(compact.topDrag,'drag');assert.ok(await add.isVisible());
     console.log('PASS empty state plus button, narrow window overflow and drag area');
   } finally {
-    if(app) app.process().kill('SIGKILL');
+    if(app){let timer;try{await Promise.race([app.close(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Electron close timed out')),5000)})])}catch{app.process().kill()}finally{clearTimeout(timer)}}
     await fs.rm(dir,{recursive:true,force:true,maxRetries:10,retryDelay:100});
   }
 })().catch(e=>{console.error(e);process.exitCode=1});

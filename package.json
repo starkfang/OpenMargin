@@ -15,7 +15,7 @@
     "test:e2e:follow": "node tests/e2e/review-follow-interaction.cjs && node tests/e2e/review-follow-resize.cjs && node tests/e2e/review-follow-layout.cjs",
     "dist:mac:dir": "npm run build && electron-builder --mac dir --arm64 --publish never",
     "dist:win": "npm run build && electron-builder --win nsis --x64 --publish never",
-    "test:e2e:product": "npm run build && node tests/e2e/product-markdown.cjs && node tests/e2e/user-html.cjs && node tests/e2e/save-shortcut.cjs && node tests/e2e/copy-selection.cjs"
+    "test:e2e:product": "npm run build && node tests/e2e/product-markdown.cjs && node tests/e2e/user-html.cjs && node tests/e2e/save-shortcut.cjs && node tests/e2e/copy-selection.cjs && node tests/e2e/chrome-header.cjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.2.1",

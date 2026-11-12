@@ -46,7 +46,7 @@ function renderSource(file) {
   const base = documentBaseUrl(file.path);
   const tag = `<base href="${safe(base)}">`;
   if (file.type === 'md') return `<!doctype html><html><head><meta charset="utf-8"><style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:16px;color:#1f2329;line-height:1.7;margin:0 auto;padding:36px 48px 160px;overflow-wrap:anywhere}
+    body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;color:#1f2329;line-height:1.7;margin:0 auto;padding:36px 48px 160px;overflow-wrap:anywhere}
     h1,h2,h3,h4,h5,h6{line-height:1.35}
     h1{font-size:30px;margin:32px 0 22px}
     h2{font-size:24px;margin:30px 0 10px}
