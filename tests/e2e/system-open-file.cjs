@@ -20,8 +20,14 @@ const root=path.resolve(__dirname,'../..');
  assert.equal(application.windows().length,1,'second document opens as a tab');
  await win.getByRole('tab',{name:/first\.md/}).click();await draft.waitFor();
  assert.equal(await draft.inputValue(),'# Unsaved draft\n','opening another document preserves the first tab draft');
+ // Hold the HTML read in flight while the system asks to activate the already
+ // selected Markdown tab. The older HTML request must not win afterward.
+ await application.evaluate(({app},target)=>{const store=process.getBuiltinModule('module').createRequire(app.getAppPath()+'/package.json')('./electron/storage.cjs'),read=store.readDocument;globalThis.__slowReadStarted=false;globalThis.__slowReadDone=false;store.readDocument=async file=>{if(file===target){globalThis.__slowReadStarted=true;await new Promise(resolve=>setTimeout(resolve,600));try{return await read(file)}finally{globalThis.__slowReadDone=true}}return read(file)}},await fs.realpath(b));
  await win.getByRole('tab',{name:/second\.html/}).click();
+ await application.evaluate(async()=>{for(let i=0;i<100&&!globalThis.__slowReadStarted;i++)await new Promise(r=>setTimeout(r,10));if(!globalThis.__slowReadStarted)throw Error('delayed HTML read did not start')});
  await application.evaluate(({app},file)=>app.emit('open-file',{preventDefault(){}},file),a);
+ await application.evaluate(async()=>{for(let i=0;i<200&&!globalThis.__slowReadDone;i++)await new Promise(r=>setTimeout(r,10));if(!globalThis.__slowReadDone)throw Error('delayed HTML read did not finish')});
+ await win.waitForTimeout(300);await win.getByRole('tab',{name:/first\.md/}).waitFor();assert.equal(await win.getByRole('tab',{name:/first\.md/}).getAttribute('aria-selected'),'true');
  await draft.waitFor();assert.equal(await draft.inputValue(),'# Unsaved draft\n','system open activates existing tab and keeps its draft');
  assert.equal(application.windows().length,1,'reopening a document reuses its window');
  const c=path.join(dir,'third.html');await fs.writeFile(c,'<h1>Third system file</h1>');
