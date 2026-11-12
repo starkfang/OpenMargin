@@ -297,7 +297,7 @@ function setupIPC() {
 }
 function createWindow() {
   rendererReady = false;
-  const owner = new BrowserWindow({width:1440,height:900,minWidth:850,minHeight:600, show:false, title:'OpenMargin', titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default', trafficLightPosition: process.platform === 'darwin' ? {x:14,y:15} : undefined, backgroundColor:'#f6f7f9', webPreferences:{preload:path.join(__dirname,'preload.cjs'), contextIsolation:true, nodeIntegration:false, sandbox:true}});
+  const owner = new BrowserWindow({width:1440,height:900,minWidth:850,minHeight:600, show:false, title:'OpenMargin', titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default', autoHideMenuBar: process.platform !== 'darwin', trafficLightPosition: process.platform === 'darwin' ? {x:14,y:15} : undefined, backgroundColor:'#f6f7f9', webPreferences:{preload:path.join(__dirname,'preload.cjs'), contextIsolation:true, nodeIntegration:false, sandbox:true}});
   // Display the first painted tab strip with native controls already aligned.
   // Native button frames are 16px tall; both they and the tab glyphs center at y=23.
   owner.once('ready-to-show', () => {

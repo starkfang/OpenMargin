@@ -30,7 +30,15 @@ const root=path.resolve(__dirname,'../..');
   console.log('PASS 切换确认与 Markdown 原位保存');
   await main('退出原位编辑').click();await pick('源码编辑');await main('源码编辑').click();const saved=await editor.inputValue();await editor.fill(saved+'跨标签草稿');await chooseFile(other);await w.getByRole('tab',{name:/doc\.md/}).click();await editor.waitFor();assert.equal(await editor.inputValue(),saved+'跨标签草稿');assert.doesNotMatch(await fs.readFile(md,'utf8'),/跨标签草稿/);console.log('PASS 切换文件保留未保存草稿');
   await chooseFile(html);await frame().getByText('动态内容').waitFor();assert.equal(await editor.count(),0,'new document defaults to reading');
-  if(!(await main('原位编辑').isVisible()))await pick('原位编辑');await main('原位编辑').click();await frame().locator('h1').click();await frame().locator('h1').fill('更新标题');await main('保存').click();assert.equal(await w.getByRole('alertdialog').count(),0,'原位保存无需逐处确认');assert.match(await waitForText(html,'更新标题'),/更新标题/);
+  // The root element has no parentElement: observed page-owned changes to it
+  // must not throw while filtering OpenMargin overlays.
+  await frame().locator('html').evaluate(el=>el.classList.add('page-layout-change'));await w.waitForTimeout(200);
+  assert.doesNotMatch(diagnostics.join('\n'),/Cannot read properties of null \(reading ['"]nodeType['"]\)/,'根元素的页面样式变化不应使 HTML 观察器报错');
+  if(!(await main('原位编辑').isVisible()))await pick('原位编辑');await main('原位编辑').click();await frame().locator('h1').click();await frame().locator('h1').fill('更新标题');const beforeSaveFrame=await w.locator('iframe[title="文档预览"]').elementHandle();await main('保存').click();assert.equal(await w.getByRole('alertdialog').count(),0,'原位保存无需逐处确认');assert.match(await waitForText(html,'更新标题'),/更新标题/);
+  // File bytes are committed before the renderer replaces the old HTML iframe.
+  // Wait for that replacement and the save transition before interacting with
+  // the dynamically generated text in the refreshed document.
+  await beforeSaveFrame.waitForElementState('hidden');await w.waitForFunction(()=>!document.querySelector('.app')?.inert);
   await frame().getByText('动态内容').waitFor();await frame().locator('#dynamic').click();await frame().locator('#dynamic').fill('错误写入');await main('保存').click();assert.equal(await w.getByRole('alertdialog').count(),0,'原位保存无需逐处确认');await w.getByText('此处内容与源文件不一致或含复杂格式，请使用批注或源码编辑。').first().waitFor();assert.doesNotMatch(await fs.readFile(html,'utf8'),/错误写入/);
   console.log('PASS HTML 静态保存与动态内容拒绝写回');
   await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(850,600));await choice().focus();await w.keyboard.press('Enter');const sourceChoice=w.getByRole('menuitemradio',{name:'源码编辑'});await sourceChoice.waitFor();await w.keyboard.press('ArrowDown');assert.equal(await w.getByRole('menu').evaluate(e=>e.contains(document.activeElement)),true,'keyboard focus stays inside the open menu');await w.keyboard.press('Escape');await w.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='选择编辑方式');assert.equal(await sourceChoice.count(),0,'Escape closes the menu');console.log('PASS 窄窗口编辑菜单键盘操作及焦点恢复');

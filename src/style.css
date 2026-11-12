@@ -153,6 +153,9 @@
 .toolbar .edit-switch-menu button{width:100%;text-align:left;padding:8px 12px}
 .edit-switch-menu [aria-checked=true]{color:#3370ff;background:#edf3ff}
 
+/* macOS needs room for its traffic lights; Windows uses a native titlebar. */
+.topbar[data-platform="win32"]{padding-left:8px}
+
 /* Keep the open-file control alongside the tab strip, including overflow. */
 .document-tabs{max-width:calc(100% - 92px);padding-right:0}
 .tab-open{flex:0 0 30px;width:30px;height:30px;margin:0 0 2px 4px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:20px;line-height:1;color:#5f6368;-webkit-app-region:no-drag}

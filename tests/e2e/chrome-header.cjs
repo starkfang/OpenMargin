@@ -32,6 +32,15 @@ const root = path.resolve(__dirname, '../..');
     assert.equal(geometry.strip.height,40,'top strip should be 40 CSS pixels high');
     assert.equal(geometry.strip.background,'rgb(232, 234, 237)','top strip uses the chosen light Chrome reference colour');
     assert.equal(geometry.tabs.length,2);
+    // The renderer exposes the host platform; compare both CSS layouts while
+    // preserving the drag regions and the original runtime platform.
+    const platforms=await win.evaluate(()=>{const strip=document.querySelector('.topbar'),tab=strip.querySelector('.document-tab'),plus=strip.querySelector('.tab-open'),original=strip.dataset.platform;const measure=platform=>{strip.dataset.platform=platform;const style=getComputedStyle(strip);return {padding:style.paddingLeft,tabX:tab.getBoundingClientRect().x,plusX:plus.getBoundingClientRect().x,stripDrag:style.getPropertyValue('-webkit-app-region'),tabDrag:getComputedStyle(tab).getPropertyValue('-webkit-app-region'),plusDrag:getComputedStyle(plus).getPropertyValue('-webkit-app-region')}};const result={windows:measure('win32'),mac:measure('darwin')};strip.dataset.platform=original;return result});
+    assert.equal(platforms.mac.padding,'82px','macOS keeps its traffic-light clearance');
+    assert.equal(platforms.windows.padding,'8px','Windows does not reserve macOS traffic-light clearance');
+    assert.equal(platforms.mac.tabX-platforms.windows.tabX,74,'Windows tabs move left with their controls');
+    assert.equal(platforms.mac.plusX-platforms.windows.plusX,74,'Windows open button moves left with the tabs');
+    for(const platform of Object.values(platforms)){assert.equal(platform.stripDrag,'drag');assert.equal(platform.tabDrag,'no-drag');assert.equal(platform.plusDrag,'no-drag')}
+
     const alignment=await win.evaluate(()=>[...document.querySelectorAll('.document-tab')].map(tab=>{const rect=e=>{const r=e.getBoundingClientRect();return {center:r.top+r.height/2,height:r.height}};const title=tab.querySelector('.tab-stem');const range=document.createRange();range.selectNodeContents(title);const text=range.getBoundingClientRect();const close=tab.querySelector('.tab-close-icon'),path=close.querySelector('path'),box=path.getBBox();return {tab:rect(tab),icon:rect(tab.querySelector('.file-icon')),name:rect(tab.querySelector('.tab-name')),text:{center:text.top+text.height/2},button:rect(tab.querySelector('button')),glyph:rect(close),pathCenter:{x:box.x+box.width/2,y:box.y+box.height/2}}}));
     for(const a of alignment){for(const child of ['icon','name','button','glyph'])assert.ok(Math.abs(a[child].center-a.tab.center)<=0.6,`${child} must align to tab centre`);assert.ok(Math.abs(a.text.center-a.tab.center)<=2,'filename text line box visually aligns');assert.deepEqual(a.pathCenter,{x:8,y:8},'close glyph artwork is centred');}
     for(const tab of geometry.tabs){assert.equal(tab.height,34,'tab height');assert.ok(tab.width>=88&&tab.width<=240,'tab width stays within limits');assert.equal(tab.drag,'no-drag','tab must not drag the native window');}
@@ -77,7 +86,10 @@ const root = path.resolve(__dirname, '../..');
     assert.equal(await firstTab.getAttribute('aria-selected'),'true','remaining tab stays active');
     await firstTab.getByRole('button',{name:/关闭 first\.md/}).click();
     await win.getByRole('button',{name:'打开本地文件'}).waitFor();
-    const add=win.getByRole('button',{name:'打开文件',exact:true});await add.waitFor();await add.click();await win.getByRole('tab',{name:/second\.md/}).waitFor();
+    const add=win.getByRole('button',{name:'打开文件',exact:true});await add.waitFor();
+    const emptyPlatforms=await win.evaluate(()=>{const strip=document.querySelector('.topbar'),plus=strip.querySelector('.tab-open'),original=strip.dataset.platform;strip.dataset.platform='win32';const windows=plus.getBoundingClientRect().x;strip.dataset.platform='darwin';const mac=plus.getBoundingClientRect().x;strip.dataset.platform=original;return {windows,mac}});
+    assert.equal(emptyPlatforms.mac-emptyPlatforms.windows,74,'empty Windows window also places its open button at the left');
+    await add.click();await win.getByRole('tab',{name:/second\.md/}).waitFor();
     assert.equal(await win.locator('.topbar .tab-open').getAttribute('title'),'打开文件');
     // Open enough long filenames to overflow on a minimum-width window.
     await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(850,600));
