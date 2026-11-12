@@ -21,5 +21,5 @@ const root=path.resolve(__dirname,'../..');
   await pop.getByPlaceholder('写下你的想法或修改建议…').fill('演示页面批注：请补充可衡量的目标。');await pop.getByRole('button',{name:'添加批注'}).click();await pop.waitFor({state:'hidden'});
   await w.getByRole('button',{name:'保存',exact:true}).click();assert.match(await waitForText(file,'演示页面批注：请补充可衡量的目标。'),/OPENMARGIN:REVIEW:START/);
   console.log('PASS 产品展示 HTML 批注写入临时副本');
- }finally{if(app)app.process().kill('SIGKILL');await fs.rm(dir,{recursive:true,force:true,maxRetries:10,retryDelay:100})}
+ }finally{if(app){let timer;try{await Promise.race([app.close(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('Electron close timed out')),5000)})])}catch{app.process().kill('SIGKILL')}finally{clearTimeout(timer)}}await fs.rm(dir,{recursive:true,force:true,maxRetries:10,retryDelay:100})}
 })().catch(e=>{console.error(e);process.exitCode=1});
