@@ -1,6 +1,6 @@
 {
   "name": "openmargin",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "A local-first reader and review workspace for Markdown and HTML.",
   "main": "electron/main.cjs",

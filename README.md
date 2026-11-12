@@ -42,7 +42,7 @@ Codex、Claude 等 Agent 擅长对话和内容生成，VS Code 擅长工程开�
 
 ## 安装与平台状态
 
-安装包通过仓库 [Releases](../../releases) 提供，具体可用版本和签名状态以发布说明为准。项目配置支持构建 Apple Silicon macOS DMG 和 Windows x64 NSIS 安装器；Windows 版本需经过实际安装、文件关联和功能验收后才应作为正式版本发布。
+安装包通过仓库 [Releases](https://github.com/starkfang/OpenMargin/releases) 提供，具体可用版本和签名状态以发布说明为准。项目配置支持构建 Apple Silicon macOS DMG 和 Windows x64 NSIS 安装器；Windows 版本需经过实际安装、文件关联和功能验收后才应作为正式版本发布。
 
 未签名或未公证的测试包可能触发系统提示。请核对发布来源和校验值。当前没有配置自动更新。
 
