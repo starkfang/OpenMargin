@@ -49,6 +49,13 @@ async function stage(name,task,timeout=15000){
       const path=process.getBuiltinModule('path');
       const req=process.getBuiltinModule('module').createRequire(path.join(app.getAppPath(),'package.json'));
       const store=req('./electron/storage.cjs');
+      // Scope filesystem tracing to the save invocation and log operation names
+      // and error codes only, never the paths or content of the document.
+      const fs=req('node:fs/promises');
+      for(const name of ['readFile','writeFile','stat','rename','unlink']){
+        const original=fs[name];
+        fs[name]=async function(...args){if(active)log('fs.'+name+' started');try{const result=await original.apply(this,args);if(active)log('fs.'+name+' completed');return result}catch(error){if(active)log('fs.'+name+' failed: '+(error.code||error.name));throw error}};
+      }
       for(const name of ['readDocument','writeDocument']){
         const original=store[name];
         store[name]=async function(...args){if(active)log(name+' started');try{const result=await original.apply(this,args);if(active)log(name+' completed');return result}catch(error){if(active)log(name+' failed: '+(error.code||error.name));throw error}};

@@ -2,6 +2,7 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {checkedReplace} = require('./checkedReplace.cjs');
 const MD_START = '\n\n<!-- OPENMARGIN:REVIEW:START -->\n';
 const MD_END = '\n<!-- OPENMARGIN:REVIEW:END -->';
 const HTML_START = '\n\n<!-- OPENMARGIN:REVIEW:START\n';
@@ -83,8 +84,7 @@ async function writeDocument({path:file, content, annotations, expectedHash}) {
     const stat = await fs.stat(file);
     try {
       await fs.writeFile(temp, next, {flag:'wx', mode:stat.mode});
-      if (hash(await fs.readFile(file, 'utf8')) !== expectedHash) throw new Error('FILE_CONFLICT');
-      await fs.rename(temp, file);
+      await checkedReplace(temp, file, expectedHash);
     } finally { await fs.unlink(temp).catch(() => {}); }
   }
   return readDocument(file);
