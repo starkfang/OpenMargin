@@ -36,6 +36,30 @@ async function stage(name,task,timeout=15000){
   const packaged=process.env.OPENMARGIN_TEST_APP;
   app=await stage('启动 Electron',()=>electron.launch({executablePath:packaged||require('electron'),args:[...(packaged?[]:[root]),file,`--user-data-dir=${dir}/data`],timeout:30000}),35000);
   const w=await stage('获取应用窗口',()=>app.firstWindow());
+  // Instrument only the temporary test process, never document bytes or paths.
+  app.on('console',message=>{const text=message.text();if(text.startsWith('SAVE_TRACE '))console.log(text)});
+  w.on('pageerror',error=>console.error('RENDERER_ERROR',error.message));
+  w.on('crash',()=>console.error('RENDERER_CRASH'));
+  await stage('挂载保存诊断',()=>app.evaluate(({app,ipcMain,BrowserWindow})=>{
+    const log=message=>console.log('SAVE_TRACE '+message);
+    const handler=ipcMain._invokeHandlers?.get('document:save');
+    if(!handler){log('IPC instrumentation unavailable');return}
+    let active=false;
+    try{
+      const path=process.getBuiltinModule('path');
+      const req=process.getBuiltinModule('module').createRequire(path.join(app.getAppPath(),'package.json'));
+      const store=req('./electron/storage.cjs');
+      for(const name of ['readDocument','writeDocument']){
+        const original=store[name];
+        store[name]=async function(...args){if(active)log(name+' started');try{const result=await original.apply(this,args);if(active)log(name+' completed');return result}catch(error){if(active)log(name+' failed: '+(error.code||error.name));throw error}};
+      }
+      log('storage instrumentation installed');
+    }catch(error){log('storage instrumentation unavailable: '+error.name)}
+    ipcMain.removeHandler('document:save');
+    ipcMain.handle('document:save',async(...args)=>{active=true;log('IPC started');try{const result=await handler(...args);log('IPC completed');return result}catch(error){log('IPC failed: '+(error.code||error.name));throw error}finally{active=false}});
+    const win=BrowserWindow.getAllWindows()[0];win?.on('unresponsive',()=>log('window unresponsive'));win?.on('responsive',()=>log('window responsive'));
+    log('IPC instrumentation installed');
+  }));
   w.setDefaultTimeout(10000);const frame=w.frameLocator('iframe[title="文档预览"]');
   const heading=frame.getByRole('heading',{name:/内容，独立呈现/});
   await stage('加载实际 HTML 首页',()=>heading.waitFor());
