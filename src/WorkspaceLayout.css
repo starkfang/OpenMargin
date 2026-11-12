@@ -1,0 +1,24 @@
+.om-workspace{position:relative;display:flex;min-width:0;overflow:hidden}
+.workspace-outline-pane,.workspace-sidebar-pane{position:relative;flex:none;min-width:0;height:100%;overflow:hidden;background:#fff}
+.workspace-pane-body,.workspace-pane-body>div{height:100%;min-width:0}
+.workspace-pane-body[hidden]{display:none}
+.workspace-outline-pane .outline,.workspace-sidebar-pane .comments{width:100%;max-width:none;height:100%}
+.workspace-sidebar-pane .comments{position:static}
+.workspace-content-pane{position:relative;display:flex;flex:1;min-width:0;overflow:hidden;background:#f5f6f8}
+.workspace-content-slot,.workspace-content-slot>div{display:flex;flex:1;min-width:0;min-height:0}
+.workspace-content-slot .canvas{min-width:0;flex:1}
+.workspace-content-slot .canvas iframe,.workspace-content-slot .canvas.html-canvas iframe{width:min(100%,var(--om-content-width));max-width:none}
+/* Keep iframe hit testing stable: toggling pointer-events during a pane collapse
+   can leave Chromium routing wheel gestures to a stale surface after release. */
+.om-workspace[data-workspace-dragging="true"]::after{content:"";position:absolute;inset:0;z-index:10;cursor:col-resize;touch-action:none;user-select:none}
+.workspace-content-slot .source-editor{width:min(100%,var(--om-content-width))}
+.workspace-divider{position:relative;flex:none;width:6px;align-self:stretch;cursor:col-resize;touch-action:none;z-index:5;background:#f5f6f8}
+.workspace-divider::after{content:"";position:absolute;top:0;bottom:0;left:2px;width:1px;background:#e6e9ef}
+.workspace-divider:hover::after,.workspace-divider:focus-visible::after{width:2px;background:#3370ff}
+.workspace-divider:focus-visible{outline:2px solid #3370ff;outline-offset:-2px}
+.workspace-divider[tabindex="-1"]{cursor:default}
+.workspace-divider-content{position:absolute;top:0;bottom:0;height:100%;z-index:4;background:transparent}
+.workspace-divider-content::after{background:transparent}
+.workspace-rail-button{width:32px;height:38px;display:grid;place-items:center;padding:0;color:#646a73;font-size:20px;line-height:1}
+.workspace-rail-button:hover{background:#edf3ff;color:#3370ff}
+.workspace-rail-button:focus-visible{outline:2px solid #3370ff;outline-offset:-2px}

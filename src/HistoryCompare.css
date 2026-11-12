@@ -1,0 +1,15 @@
+.history-compare-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;color:#646a73;font-size:12px}
+.history-compare-toggle{display:flex;padding:3px;background:#f2f4f7;border-radius:6px}
+.history-compare-toggle button{padding:5px 10px;border-radius:4px;color:#646a73}
+.history-compare-toggle button[aria-pressed=true]{background:#fff;color:#1f2329;box-shadow:0 1px 3px #1f23291f}
+.history-compare-notice{font-size:12px;color:#646a73;margin:0 0 8px}
+.history-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid #e2e5eb;border-radius:6px;overflow:hidden}
+.history-compare-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#f7f8fa;border-bottom:1px solid #e2e5eb;font-size:13px}
+.history-compare-head strong{font-weight:600}.history-compare-head span{color:#646a73;font-size:11px}
+.history-compare-right{border-left:1px solid #e2e5eb}
+.history-compare-cell{display:flex;align-items:flex-start;gap:7px;min-width:0;padding:6px 10px;line-height:1.6;font-size:12px}
+.history-compare-cell>span{width:12px;flex:none;font-weight:600}
+.history-compare-cell p{margin:0;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.history-compare-cell.is-removed{background:#fff1f1;color:#a62929}
+.history-compare-cell.is-added{background:#edf9f0;color:#20783b}
+.history-compare-gap{padding:7px 10px;text-align:center;color:#646a73;font-size:11px;border-bottom:1px dashed #e2e5eb}

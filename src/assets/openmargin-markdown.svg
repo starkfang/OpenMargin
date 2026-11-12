@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 4 24 24" role="img" aria-label="Markdown 文档">
+  <path d="M9.5 6.5h9l4 4v14.25a.75.75 0 0 1-.75.75H9.5a1 1 0 0 1-1-1v-17a1 1 0 0 1 1-1Z" fill="none" stroke="#4368D9" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M18.5 6.8v3.7h3.7" fill="none" stroke="#4368D9" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M11.7 14h7.9M11.7 17.3h7.9M14 20.6h5.6" fill="none" stroke="#4368D9" stroke-width="1.55" stroke-linecap="round"/>
+  <circle cx="11.6" cy="20.6" r="1" fill="#4368D9"/>
+</svg>

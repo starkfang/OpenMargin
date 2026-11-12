@@ -1,0 +1,20 @@
+/* The two views have equal weight and share the toolbar's 30px control height. */
+.toolbar .sidebar-switch{width:200px;height:30px;border:1px solid #e2e5e9;border-radius:5px;overflow:visible}
+.toolbar .sidebar-switch button{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;height:28px;gap:5px;padding:0 6px;border:1px solid transparent;border-radius:4px;color:#646a73}
+.toolbar .sidebar-switch button+button{border-left:1px solid #e2e5e9;border-radius:4px}
+.toolbar .sidebar-switch button[aria-pressed="true"]{border-color:#c9ddff;background:#eaf3ff;color:#1464f4}
+.toolbar .sidebar-switch button:focus-visible,.sidebar-header-close:focus-visible,.sidebar-filter button:focus-visible{outline:2px solid #3370ff;outline-offset:-2px}
+
+/* Tabs and close share one compact row; no extra header above the content. */
+.comments .sidebar-filter{height:46px;flex:none;display:flex;align-items:stretch;gap:5px;padding:0 12px;border-bottom:1px solid #edf0f4}
+.comments .sidebar-filter button:not(.sidebar-header-close){position:relative;display:flex;align-items:center;padding:0 12px;border-radius:0;color:#646a73;font-size:12px;white-space:nowrap}
+.comments .sidebar-filter button.chosen{color:#1464f4;background:linear-gradient(to bottom,transparent 7px,#eaf3ff 7px,#eaf3ff calc(100% - 5px),transparent calc(100% - 5px))}
+.comments .sidebar-filter button.chosen::after{content:"";position:absolute;right:0;bottom:0;left:0;height:2px;background:#3370ff}
+.comments .sidebar-header-close{display:grid;place-items:center;flex:none;width:28px;height:28px;margin:auto 0 auto auto;padding:0;border-radius:4px;color:#646a73}
+.comments .sidebar-header-close:hover{background:#f2f4f7;color:#1f2329}
+.comments .sidebar-history-header{height:46px;flex:none;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #edf0f4;gap:8px}
+.sidebar-history-title{font-size:13px;font-weight:600;color:#1f2329;white-space:nowrap}
+.sidebar-history-local{padding-left:8px;border-left:1px solid #e2e5e9;color:#8f959e;font-size:11px;white-space:nowrap}
+
+/* Card focus follows the document; content reflow must not scroll-anchor a different card. */
+.comments-scroll{overflow-anchor:none}

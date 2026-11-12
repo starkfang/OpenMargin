@@ -1,0 +1,10 @@
+import { injectHtmlBridge } from '../src/htmlBridge.js';
+const frame = document.createElement('iframe');
+frame.setAttribute('sandbox', 'allow-scripts');
+frame.style.cssText = 'width:700px;height:400px;border:0';
+document.body.appendChild(frame);
+window.messages = [];
+window.addEventListener('message', e => { if (e.source === frame.contentWindow && e.data?.channel === 'openmargin:preview') window.messages.push(e.data); });
+window.sendHost = (type, data = {}) => frame.contentWindow.postMessage({channel:'openmargin:host', type, ...data}, '*');
+window.loadDoc = () => { window.messages = []; frame.srcdoc = injectHtmlBridge('<!doctype html><html><head></head><body><p>第一段初始文字</p><p>第二段初始文字</p><p>第三段初始文字</p></body></html>'); };
+window.loadDoc();
